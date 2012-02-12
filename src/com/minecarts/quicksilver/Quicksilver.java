@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class Quicksilver extends JavaPlugin implements Listener {
-    private ArrayList<Player> deagroedPlayers = new ArrayList<Player>();
+    private ArrayList<Player> deaggroedPlayers = new ArrayList<Player>();
     private ArrayList<Player> vanishedPlayers = new ArrayList<Player>();
     public void onEnable(){       
         getServer().getPluginManager().registerEvents(this, this);
@@ -62,7 +62,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
                         p.hidePlayer(playerToVanish);
                     }
                     vanishedPlayers.add(playerToVanish);
-                    if(!deagroedPlayers.contains(playerToVanish)) deagroedPlayers.add(playerToVanish);
+                    if(!deaggroedPlayers.contains(playerToVanish)) deaggroedPlayers.add(playerToVanish);
                     sender.sendMessage(playerToVanish.getDisplayName() + " is now vanished.");
                     if(!playerToVanish.getName().equalsIgnoreCase(sender.getName())){
                         playerToVanish.sendMessage(sender.getName() + " has made you invisible.");
@@ -79,30 +79,30 @@ public class Quicksilver extends JavaPlugin implements Listener {
                     getLogger().log(Level.INFO,sender.getName()  + " APPEARED " + playerToVanish.getName());
 
                     vanishedPlayers.remove(playerToVanish);
-                    if(deagroedPlayers.contains(playerToVanish)) deagroedPlayers.remove(playerToVanish);
+                    if(deaggroedPlayers.contains(playerToVanish)) deaggroedPlayers.remove(playerToVanish);
 
                 }
                 return true;
             }
         });
 
-        getCommand("agro").setExecutor(new CommandExecutor() {
+        getCommand("aggro").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-                if(!sender.hasPermission("quicksilver.agro.self") || !sender.hasPermission("quicksilver.agro.other")) return true;
+                if(!sender.hasPermission("quicksilver.aggro.self") || !sender.hasPermission("quicksilver.aggro.other")) return true;
 
-                Player playerToDeagro = null;
+                Player playerToDeaggro = null;
                 switch(args.length){
                     case 0:
                         if(!(sender instanceof Player)){
-                            sender.sendMessage("You cannot deagro yourself when you're not a player.");
+                            sender.sendMessage("You cannot deaggro yourself when you're not a player.");
                             return true;
                         }
-                        playerToDeagro = (Player)sender;
+                        playerToDeaggro = (Player)sender;
                         break;
                     case 1:
                         if(args[0].equalsIgnoreCase("list")){
-                            sender.sendMessage("---Deagroed players---");
-                            for(Player p : deagroedPlayers){
+                            sender.sendMessage("---Deaggroed players---");
+                            for(Player p : deaggroedPlayers){
                                 sender.sendMessage(p.getDisplayName());
                             }
                             return true;
@@ -110,30 +110,30 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
                         List<Player> players = Bukkit.matchPlayer(args[0]);
                         if(players.size() != 1){
-                            sender.sendMessage("Could not deagro " + ChatColor.YELLOW + args[0] + ChatColor.WHITE + ". " +  players.size()  + " players matched.");
+                            sender.sendMessage("Could not deaggro " + ChatColor.YELLOW + args[0] + ChatColor.WHITE + ". " +  players.size()  + " players matched.");
                             return true;
                         }
 
-                        playerToDeagro = players.get(0);
+                        playerToDeaggro = players.get(0);
                 }
 
-                if(deagroedPlayers.contains(playerToDeagro)){
-                    deagroedPlayers.remove(playerToDeagro);
+                if(deaggroedPlayers.contains(playerToDeaggro)){
+                    deaggroedPlayers.remove(playerToDeaggro);
 
-                    sender.sendMessage(playerToDeagro.getDisplayName() + " will now agro mobs.");
-                    if(!playerToDeagro.getName().equalsIgnoreCase(sender.getName())){
-                        playerToDeagro.sendMessage(sender.getName() + " has made it so you will agro mobs.");
+                    sender.sendMessage(playerToDeaggro.getDisplayName() + " will now aggro mobs.");
+                    if(!playerToDeaggro.getName().equalsIgnoreCase(sender.getName())){
+                        playerToDeaggro.sendMessage(sender.getName() + " has made it so you will aggro mobs.");
                     }
-                    getLogger().log(Level.INFO,sender.getName()  + " AGROED " + playerToDeagro.getName());
+                    getLogger().log(Level.INFO,sender.getName()  + " aggroED " + playerToDeaggro.getName());
 
                 } else {
-                    deagroedPlayers.add(playerToDeagro);
+                    deaggroedPlayers.add(playerToDeaggro);
 
-                    sender.sendMessage(playerToDeagro.getDisplayName() + " will no longer agro mobs.");
-                    if(!playerToDeagro.getName().equalsIgnoreCase(sender.getName())){
-                        playerToDeagro.sendMessage(sender.getName() + " has made it so you will no long agro mobs.");
+                    sender.sendMessage(playerToDeaggro.getDisplayName() + " will no longer aggro mobs.");
+                    if(!playerToDeaggro.getName().equalsIgnoreCase(sender.getName())){
+                        playerToDeaggro.sendMessage(sender.getName() + " has made it so you will no long aggro mobs.");
                     }
-                    getLogger().log(Level.INFO,sender.getName()  + " DEAGROED " + playerToDeagro.getName());
+                    getLogger().log(Level.INFO,sender.getName()  + " DEaggroED " + playerToDeaggro.getName());
 
                 }
                 return true;
@@ -148,15 +148,15 @@ public class Quicksilver extends JavaPlugin implements Listener {
         for(Player p : vanishedPlayers){
             p.sendMessage(ChatColor.YELLOW + "You are no longer vanished (plugin disabled).");
         }
-        for(Player p : deagroedPlayers){
+        for(Player p : deaggroedPlayers){
             if(vanishedPlayers.contains(p)) continue;
             p.sendMessage(ChatColor.YELLOW + "Mobs will now attack you (plugin disabled).");
         }
     }
 
     @EventHandler
-    public void playerAgroListener(EntityTargetEvent event){
-        if(deagroedPlayers.contains(event.getTarget())){
+    public void playeraggroListener(EntityTargetEvent event){
+        if(deaggroedPlayers.contains(event.getTarget())){
             event.setCancelled(true);
         }
     }

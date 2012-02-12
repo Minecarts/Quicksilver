@@ -8,8 +8,8 @@ commands:
     vanish:
         description: Toggle invisiblity on yourself or another player
         usage: "/<command> [player]"
-    agro:
-        description: Toggle monster agro on yourself or another player
+    aggro:
+        description: Toggle monster aggro on yourself or another player
         usage: "/<command> [player]"
 permissions:
     quicksilver.vanish.*:
@@ -17,8 +17,8 @@ permissions:
         children:
             quicksilver.vanish.self: true
             quicksilver.vanish.other: true
-    quicksilver.agro.*:
-            description: "Access to all agro commands"
+    quicksilver.aggro.*:
+            description: "Access to all aggro commands"
             children:
                 quicksilver.vanish.self: true
                 quicksilver.vanish.other: true
@@ -34,12 +34,12 @@ permissions:
     quicksilver.vanish.see:
         description: "See vanished players"
         default: op
-    quicksilver.agro.self:
-        description: "Allow for agro blocking on yourself"
+    quicksilver.aggro.self:
+        description: "Allow for aggro blocking on yourself"
         default: op
-    quicksilver.agro.other:
-        description: "Agro blocking another player"
+    quicksilver.aggro.other:
+        description: "aggro blocking another player"
         default: op
-    quicksilver.agro.list:
-        description: "List players who are not agroable"
+    quicksilver.aggro.list:
+        description: "List players who are not aggroable"
         default: op
