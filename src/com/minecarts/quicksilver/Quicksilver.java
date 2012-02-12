@@ -21,6 +21,20 @@ public class Quicksilver extends JavaPlugin implements Listener {
     private ArrayList<Player> deagroedPlayers = new ArrayList<Player>();
     private ArrayList<Player> vanishedPlayers = new ArrayList<Player>();
     public void onEnable(){
+        
+        //Check for any pre-existing vanished players since vanish persists between reloads
+        for(Player targetPlayer : Bukkit.getOnlinePlayers()){
+            if(vanishedPlayers.contains(targetPlayer)) continue;
+            for(Player checkPlayer : Bukkit.getOnlinePlayers()){
+                if(!targetPlayer.canSee(checkPlayer)){
+                    vanishedPlayers.add(targetPlayer);
+                    deagroedPlayers.add(targetPlayer);
+                    break;
+                }
+            }
+        }
+
+        
 
         getServer().getPluginManager().registerEvents(this, this);
         getCommand("vanish").setExecutor(new CommandExecutor() {
