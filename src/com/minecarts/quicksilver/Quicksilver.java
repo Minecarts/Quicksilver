@@ -13,7 +13,6 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
