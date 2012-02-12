@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,22 +21,7 @@ import java.util.logging.Level;
 public class Quicksilver extends JavaPlugin implements Listener {
     private ArrayList<Player> deagroedPlayers = new ArrayList<Player>();
     private ArrayList<Player> vanishedPlayers = new ArrayList<Player>();
-    public void onEnable(){
-        
-        //Check for any pre-existing vanished players since vanish persists between reloads
-        for(Player targetPlayer : Bukkit.getOnlinePlayers()){
-            if(vanishedPlayers.contains(targetPlayer)) continue;
-            for(Player checkPlayer : Bukkit.getOnlinePlayers()){
-                if(!targetPlayer.canSee(checkPlayer)){
-                    vanishedPlayers.add(targetPlayer);
-                    deagroedPlayers.add(targetPlayer);
-                    break;
-                }
-            }
-        }
-
-        
-
+    public void onEnable(){       
         getServer().getPluginManager().registerEvents(this, this);
         getCommand("vanish").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -157,6 +143,16 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
 
         getLogger().log(Level.INFO,getDescription().getVersion() + " enabled.");
+    }
+    
+    public void onDisable(){
+        for(Player p : vanishedPlayers){
+            p.sendMessage(ChatColor.YELLOW + "You are no longer vanished (plugin disabled).");
+        }
+        for(Player p : deagroedPlayers){
+            if(vanishedPlayers.contains(p)) continue;
+            p.sendMessage(ChatColor.YELLOW + "Mobs will now attack you (plugin disabled).");
+        }
     }
 
     @EventHandler
