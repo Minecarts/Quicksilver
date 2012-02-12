@@ -1,0 +1,45 @@
+name: Quicksilver
+main: com.minecarts.quicksilver.Quicksilver
+version: ${pom.version}
+website: http://minecarts.com/
+author: verrier
+description: Pluggin to allow for per player invisiblity
+commands:
+    vanish:
+        description: Toggle invisiblity on yourself or another player
+        usage: "/<command> [player]"
+    agro:
+        description: Toggle monster agro on yourself or another player
+        usage: "/<command> [player]"
+permissions:
+    quicksilver.vanish.*:
+        description: "Access to all vanish commands"
+        children:
+            quicksilver.vanish.self: true
+            quicksilver.vanish.other: true
+    quicksilver.agro.*:
+            description: "Access to all agro commands"
+            children:
+                quicksilver.vanish.self: true
+                quicksilver.vanish.other: true
+    quicksilver.vanish.self:
+        description: "Allow for vanishing on yourself"
+        default: op
+    quicksilver.vanish.other:
+        description: "Vanish another player"
+        default: op
+    quicksilver.vanish.list:
+        description: "List vanished players"
+        default: op
+    quicksilver.vanish.see:
+        description: "See vanished players"
+        default: op
+    quicksilver.agro.self:
+        description: "Allow for agro blocking on yourself"
+        default: op
+    quicksilver.agro.other:
+        description: "Agro blocking another player"
+        default: op
+    quicksilver.agro.list:
+        description: "List players who are not agroable"
+        default: op
