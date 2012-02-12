@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class Quicksilver extends JavaPlugin implements Listener {
     private ArrayList<Player> deagroedPlayers = new ArrayList<Player>();
@@ -67,6 +68,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
                     if(!playerToVanish.getName().equalsIgnoreCase(sender.getName())){
                         playerToVanish.sendMessage(sender.getName() + " has made you invisible.");
                     }
+                    getLogger().log(Level.INFO,sender.getName()  + " VANISHED " + playerToVanish.getName());
                 } else {
                     for(Player p : Bukkit.getOnlinePlayers()){
                         p.showPlayer(playerToVanish);
@@ -75,6 +77,8 @@ public class Quicksilver extends JavaPlugin implements Listener {
                     if(!playerToVanish.getName().equalsIgnoreCase(sender.getName())){
                         playerToVanish.sendMessage(sender.getName() + " has made you visible.");
                     }
+                    getLogger().log(Level.INFO,sender.getName()  + " APPEARED " + playerToVanish.getName());
+
                     vanishedPlayers.remove(playerToVanish);
                     if(deagroedPlayers.contains(playerToVanish)) deagroedPlayers.remove(playerToVanish);
 
@@ -116,19 +120,29 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
                 if(deagroedPlayers.contains(playerToDeagro)){
                     deagroedPlayers.remove(playerToDeagro);
+
                     sender.sendMessage(playerToDeagro.getDisplayName() + " will now agro mobs.");
                     if(!playerToDeagro.getName().equalsIgnoreCase(sender.getName())){
                         playerToDeagro.sendMessage(sender.getName() + " has made it so you will agro mobs.");
                     }
+                    getLogger().log(Level.INFO,sender.getName()  + " AGROED " + playerToDeagro.getName());
+
                 } else {
                     deagroedPlayers.add(playerToDeagro);
+
+                    sender.sendMessage(playerToDeagro.getDisplayName() + " will no longer agro mobs.");
                     if(!playerToDeagro.getName().equalsIgnoreCase(sender.getName())){
                         playerToDeagro.sendMessage(sender.getName() + " has made it so you will no long agro mobs.");
                     }
+                    getLogger().log(Level.INFO,sender.getName()  + " DEAGROED " + playerToDeagro.getName());
+
                 }
                 return true;
             }
         });
+
+
+        getLogger().log(Level.INFO,getDescription().getVersion() + " enabled.");
     }
 
     @EventHandler
