@@ -6,9 +6,11 @@ author: verrier
 description: Pluggin to allow for per player invisiblity
 commands:
     vanish:
+        aliases: [poof]
         description: Toggle invisiblity on yourself or another player
         usage: "/<command> [player]"
     aggro:
+        aliases: [agro]
         description: Toggle monster aggro on yourself or another player
         usage: "/<command> [player]"
 permissions:
