@@ -43,6 +43,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
                         if(args[0].equalsIgnoreCase("list")){
                             sender.sendMessage("---Vanished players---");
                             for(Player p : vanishedPlayers){
+                                if(!p.isOnline()) continue;
                                 sender.sendMessage(p.getDisplayName());
                             }
                             return true;
