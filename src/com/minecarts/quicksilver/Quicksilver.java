@@ -10,16 +10,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 
+import com.minecarts.dbpermissions.PermissionsCalculated;
+
 public class Quicksilver extends JavaPlugin implements Listener {
-    private ArrayList<Player> deaggroedPlayers = new ArrayList<Player>();
-    private ArrayList<Player> vanishedPlayers = new ArrayList<Player>();
+    private HashSet<Player> deaggroedPlayers = new HashSet<Player>();
+    private HashSet<Player> vanishedPlayers = new HashSet<Player>();
     public void onEnable(){       
         getServer().getPluginManager().registerEvents(this, this);
         getCommand("vanish").setExecutor(new CommandExecutor() {
@@ -124,7 +128,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
                     if(!playerToDeaggro.getName().equalsIgnoreCase(sender.getName())){
                         playerToDeaggro.sendMessage(sender.getName() + " has made it so you will aggro mobs.");
                     }
-                    getLogger().log(Level.INFO,sender.getName()  + " aggroED " + playerToDeaggro.getName());
+                    getLogger().log(Level.INFO,sender.getName()  + " AGGROED " + playerToDeaggro.getName());
 
                 } else {
                     deaggroedPlayers.add(playerToDeaggro);
@@ -133,7 +137,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
                     if(!playerToDeaggro.getName().equalsIgnoreCase(sender.getName())){
                         playerToDeaggro.sendMessage(sender.getName() + " has made it so you will no long aggro mobs.");
                     }
-                    getLogger().log(Level.INFO,sender.getName()  + " DEaggroED " + playerToDeaggro.getName());
+                    getLogger().log(Level.INFO,sender.getName()  + " DEAGGROED " + playerToDeaggro.getName());
 
                 }
                 return true;
@@ -154,6 +158,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
         }
     }
 
+
     @EventHandler
     public void playeraggroListener(EntityTargetEvent event){
         if(deaggroedPlayers.contains(event.getTarget())){
@@ -164,6 +169,26 @@ public class Quicksilver extends JavaPlugin implements Listener {
     public void playerPickupListener(PlayerPickupItemEvent event){
         if(vanishedPlayers.contains(event.getPlayer())){
             event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void permissionsUpdate(PermissionsCalculated event){
+        if(event.getPermissible() instanceof Player) {
+            Player player = (Player) event.getPermissible();
+            //If they should be invisible, hide this player from all players 
+            if(vanishedPlayers.contains(player)){
+                for(Player p : Bukkit.getOnlinePlayers()){
+                    if(p.hasPermission("quicksilver.vanish.see")) continue;
+                    p.hidePlayer(player);
+                }
+            }
+
+            //But hide all the invisible players from this guy
+            if(player.hasPermission("quicksilver.vanish.see")) return; //Don't hide anyone if they can see them
+            for(Player invisiblePlayer : vanishedPlayers){
+                player.hidePlayer(invisiblePlayer);
+            }
         }
     }
 }
