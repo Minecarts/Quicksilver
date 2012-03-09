@@ -29,7 +29,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
         getCommand("vanish").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 //Determine if they're vanishing themselves or someone else
-                if(!sender.hasPermission("quicksilver.vanish.self") || !sender.hasPermission("quicksilver.vanish.other")) return true;
+                if(!sender.hasPermission("quicksilver.vanish.self") && !sender.hasPermission("quicksilver.vanish.other")) return true;
                 Player playerToVanish = null;
                 switch(args.length){
                     case 0:
@@ -93,7 +93,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
         getCommand("aggro").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-                if(!sender.hasPermission("quicksilver.aggro.self") || !sender.hasPermission("quicksilver.aggro.other")) return true;
+                if(!sender.hasPermission("quicksilver.aggro.self") && !sender.hasPermission("quicksilver.aggro.other")) return true;
 
                 Player playerToDeaggro = null;
                 switch(args.length){
