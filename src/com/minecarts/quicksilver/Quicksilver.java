@@ -186,10 +186,25 @@ public class Quicksilver extends JavaPlugin implements Listener {
             }
 
             //But hide all the invisible players from this guy
-            if(player.hasPermission("quicksilver.vanish.see")) return; //Don't hide anyone if they can see them
-            for(Player invisiblePlayer : vanishedPlayers){
-                player.hidePlayer(invisiblePlayer);
+            if(player.hasPermission("quicksilver.vanish.see")){
+                //Show all this hidden players to this guy incase he relogged
+                for(Player invisiblePlayer : vanishedPlayers){
+                    player.showPlayer(invisiblePlayer);
+                }
+            } else {
+                //Else hide all the vanished players from this guy
+                for(Player invisiblePlayer : vanishedPlayers){
+                    player.hidePlayer(invisiblePlayer);
+                }
             }
+        }
+    }
+
+    @EventHandler
+    public void playerConnect(PlayerJoinEvent event){
+        Player newPlayer = event.getPlayer();
+        for(Player invisiblePlayer : vanishedPlayers){
+            newPlayer.hidePlayer(invisiblePlayer);
         }
     }
 }
