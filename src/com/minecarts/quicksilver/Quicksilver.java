@@ -1,5 +1,12 @@
 package com.minecarts.quicksilver;
 
+import java.util.logging.Level;
+import java.text.MessageFormat;
+
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,22 +21,21 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.logging.Level;
-
 import com.minecarts.dbpermissions.PermissionsCalculated;
 
 public class Quicksilver extends JavaPlugin implements Listener {
-    private HashSet<Player> deaggroedPlayers = new HashSet<Player>();
-    private HashSet<Player> vanishedPlayers = new HashSet<Player>();
+    protected final Set<Player> deaggroedPlayers = new HashSet<Player>();
+    protected final Set<Player> vanishedPlayers = new HashSet<Player>();
+    
+    @Override
     public void onEnable(){       
         getServer().getPluginManager().registerEvents(this, this);
+        
         getCommand("vanish").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 //Determine if they're vanishing themselves or someone else
                 if(!sender.hasPermission("quicksilver.vanish.self") && !sender.hasPermission("quicksilver.vanish.other")) return true;
+                
                 Player playerToVanish = null;
                 switch(args.length){
                     case 0:
@@ -57,36 +63,32 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
                         playerToVanish = players.get(0);
                 }
-
-                //Hide the player (depending upon self or someone else)
                 if(playerToVanish == null) return false;
+                
+                
                 if(!vanishedPlayers.contains(playerToVanish)){
                     //Hide this player from all players
-                    for(Player p : Bukkit.getOnlinePlayers()){
-                        if(p.hasPermission("quicksilver.vanish.see")) continue;
-                        p.hidePlayer(playerToVanish);
-                    }
                     vanishedPlayers.add(playerToVanish);
-                    if(!deaggroedPlayers.contains(playerToVanish)) deaggroedPlayers.add(playerToVanish);
+                    deaggroedPlayers.add(playerToVanish);
+                    updatePlayer(playerToVanish);
+                    
                     sender.sendMessage(playerToVanish.getDisplayName() + " is now vanished.");
                     if(!playerToVanish.getName().equalsIgnoreCase(sender.getName())){
                         playerToVanish.sendMessage(sender.getName() + " has made you invisible.");
                     }
                     getLogger().log(Level.INFO,sender.getName()  + " VANISHED " + playerToVanish.getName());
                 } else {
-                    for(Player p : Bukkit.getOnlinePlayers()){
-                        p.showPlayer(playerToVanish);
-                    }
+                    vanishedPlayers.remove(playerToVanish);
+                    deaggroedPlayers.remove(playerToVanish);
+                    updatePlayer(playerToVanish);
+                    
                     sender.sendMessage(playerToVanish.getDisplayName() + " is now visible.");
                     if(!playerToVanish.getName().equalsIgnoreCase(sender.getName())){
                         playerToVanish.sendMessage(sender.getName() + " has made you visible.");
                     }
                     getLogger().log(Level.INFO,sender.getName()  + " APPEARED " + playerToVanish.getName());
-
-                    vanishedPlayers.remove(playerToVanish);
-                    if(deaggroedPlayers.contains(playerToVanish)) deaggroedPlayers.remove(playerToVanish);
-
                 }
+                
                 return true;
             }
         });
@@ -122,7 +124,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
                         playerToDeaggro = players.get(0);
                 }
 
-                if(deaggroedPlayers.contains(playerToDeaggro)){
+                if(deaggroedPlayers.contains(playerToDeaggro)) {
                     deaggroedPlayers.remove(playerToDeaggro);
 
                     sender.sendMessage(playerToDeaggro.getDisplayName() + " will now aggro mobs.");
@@ -149,6 +151,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
         getLogger().log(Level.INFO,getDescription().getVersion() + " enabled.");
     }
     
+    @Override
     public void onDisable(){
         for(Player p : vanishedPlayers){
             p.sendMessage(ChatColor.YELLOW + "You are no longer vanished (plugin disabled).");
@@ -161,13 +164,13 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
 
     @EventHandler
-    public void playeraggroListener(EntityTargetEvent event){
-        if(deaggroedPlayers.contains(event.getTarget())){
+    public void playerAggro(EntityTargetEvent event){
+        if(event.getTarget() instanceof Player && deaggroedPlayers.contains((Player) event.getTarget())){
             event.setCancelled(true);
         }
     }
     @EventHandler
-    public void playerPickupListener(PlayerPickupItemEvent event){
+    public void playerPickupItem(PlayerPickupItemEvent event){
         if(vanishedPlayers.contains(event.getPlayer())){
             event.setCancelled(true);
         }
@@ -176,46 +179,68 @@ public class Quicksilver extends JavaPlugin implements Listener {
     @EventHandler
     public void permissionsUpdate(PermissionsCalculated event){
         if(event.getPermissible() instanceof Player) {
-            Player player = (Player) event.getPermissible();
-            //If they should be invisible, hide this player from all players 
-            if(vanishedPlayers.contains(player)){
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    if(p.hasPermission("quicksilver.vanish.see")){
-                        p.showPlayer(player);
-                    } else {
-                        p.hidePlayer(player);
-                    }
-                }
-            }
-
-            //But hide all the invisible players from this guy
-            if(player.hasPermission("quicksilver.vanish.see")){
-                //Show all this hidden players to this guy incase he relogged
-                for(Player invisiblePlayer : vanishedPlayers){
-                    player.showPlayer(invisiblePlayer);
-                }
-            } else {
-                //Else hide all the vanished players from this guy
-                for(Player invisiblePlayer : vanishedPlayers){
-                    player.hidePlayer(invisiblePlayer);
-                }
-            }
+            updatePlayer((Player) event.getPermissible());
         }
     }
 
     @EventHandler
     public void playerConnect(PlayerJoinEvent event){
-        Player newPlayer = event.getPlayer();
-
-        //If they should be invisible, hide this player from all players
-        if(vanishedPlayers.contains(newPlayer)){
-            for(Player p : Bukkit.getOnlinePlayers()){
-                p.hidePlayer(newPlayer);
+        updatePlayer(event.getPlayer());
+    }
+    
+    
+    protected void updatePlayer(Player player) {
+        // player is vanished
+        if(vanishedPlayers.contains(player)) {
+            // hide player from online players
+            for(Player p : Bukkit.getOnlinePlayers()) {
+                // unless they can see vanished players
+                if(p.hasPermission("quicksilver.vanish.see")) {
+                    p.showPlayer(player);
+                }
+                else {
+                    p.hidePlayer(player);
+                }
             }
         }
         
-        for(Player invisiblePlayer : vanishedPlayers){
-            newPlayer.hidePlayer(invisiblePlayer);
+        // player can see vanished players
+        if(player.hasPermission("quicksilver.vanish.see")) {
+            // show all vanished players to player
+            for(Player p : vanishedPlayers) {
+                player.showPlayer(p);
+            }
+        }
+        // player can't see vanished players
+        else {
+            // hide all vanished players from player
+            for(Player p : vanishedPlayers) {
+                player.hidePlayer(p);
+            }
         }
     }
+    
+    
+    
+    
+    public void log(String message) {
+        log(Level.INFO, message);
+    }
+    public void log(Level level, String message) {
+        getLogger().log(level, message);
+    }
+    public void log(String message, Object... args) {
+        log(MessageFormat.format(message, args));
+    }
+    public void log(Level level, String message, Object... args) {
+        log(level, MessageFormat.format(message, args));
+    }
+    
+    public void debug(String message) {
+        log(Level.FINE, message);
+    }
+    public void debug(String message, Object... args) {
+        debug(MessageFormat.format(message, args));
+    }
+    
 }
