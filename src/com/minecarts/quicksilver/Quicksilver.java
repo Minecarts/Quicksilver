@@ -202,6 +202,8 @@ public class Quicksilver extends JavaPlugin implements Listener {
         if(vanishedPlayers.contains(player)) {
             // hide player from online players
             for(Player p : Bukkit.getOnlinePlayers()) {
+                if(player.equals(p)) continue; // skip self
+                
                 // unless they can see vanished players
                 if(p.hasPermission("quicksilver.vanish.see")) {
                     p.showPlayer(player);
@@ -215,6 +217,8 @@ public class Quicksilver extends JavaPlugin implements Listener {
         else {
             // show player to online players
             for(Player p : Bukkit.getOnlinePlayers()) {
+                if(player.equals(p)) continue; // skip self
+                
                 p.showPlayer(player);
             }
         }
@@ -223,6 +227,8 @@ public class Quicksilver extends JavaPlugin implements Listener {
         if(player.hasPermission("quicksilver.vanish.see")) {
             // show all vanished players to player
             for(Player p : vanishedPlayers) {
+                if(player.equals(p)) continue; // skip self
+                
                 player.showPlayer(p);
             }
         }
@@ -230,6 +236,8 @@ public class Quicksilver extends JavaPlugin implements Listener {
         else {
             // hide all vanished players from player
             for(Player p : vanishedPlayers) {
+                if(player.equals(p)) continue; // skip self
+                
                 player.hidePlayer(p);
             }
         }
