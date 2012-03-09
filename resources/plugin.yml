@@ -39,7 +39,7 @@ permissions:
     quicksilver.vanish.see:
         description: "See vanished players"
         default: op
-    quicksilver.aggro.always:
+    quicksilver.vanish.always:
         description: "Always vanish"
         default: false
         
