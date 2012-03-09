@@ -179,7 +179,15 @@ public class Quicksilver extends JavaPlugin implements Listener {
     @EventHandler
     public void permissionsUpdate(PermissionsCalculated event){
         if(event.getPermissible() instanceof Player) {
-            updatePlayer((Player) event.getPermissible());
+            Player player = (Player) event.getPermissible();
+            if(player.hasPermission("quicksilver.vanish.always")) {
+                vanishedPlayers.add(player);
+                deaggroedPlayers.add(player);
+            }
+            else if(player.hasPermission("quicksilver.deaggro.always")) {
+                deaggroedPlayers.add(player);
+            }
+            updatePlayer(player);
         }
     }
 

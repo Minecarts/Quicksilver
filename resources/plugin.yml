@@ -1,9 +1,12 @@
 name: Quicksilver
+description: Per-player invisiblity and aggro control
+author: verrier, megabytes
+website: http://www.minecarts.com/
+
 main: com.minecarts.quicksilver.Quicksilver
 version: ${pom.version}
-website: http://minecarts.com/
-author: verrier
-description: Pluggin to allow for per player invisiblity
+
+
 commands:
     vanish:
         aliases: [poof]
@@ -13,17 +16,17 @@ commands:
         aliases: [agro]
         description: Toggle monster aggro on yourself or another player
         usage: "/<command> [player]"
+        
+        
 permissions:
+  
+    #vanish
     quicksilver.vanish.*:
         description: "Access to all vanish commands"
         children:
             quicksilver.vanish.self: true
             quicksilver.vanish.other: true
-    quicksilver.aggro.*:
-            description: "Access to all aggro commands"
-            children:
-                quicksilver.vanish.self: true
-                quicksilver.vanish.other: true
+            quicksilver.vanish.list: true
     quicksilver.vanish.self:
         description: "Allow for vanishing on yourself"
         default: op
@@ -36,6 +39,17 @@ permissions:
     quicksilver.vanish.see:
         description: "See vanished players"
         default: op
+    quicksilver.aggro.always:
+        description: "Always vanish"
+        default: none
+        
+    #deaggro
+    quicksilver.aggro.*:
+            description: "Access to all aggro commands"
+            children:
+                quicksilver.aggro.self: true
+                quicksilver.aggro.other: true
+                quicksilver.aggro.list: true
     quicksilver.aggro.self:
         description: "Allow for aggro blocking on yourself"
         default: op
@@ -45,3 +59,6 @@ permissions:
     quicksilver.aggro.list:
         description: "List players who are not aggroable"
         default: op
+    quicksilver.aggro.always:
+        description: "Always deaggro"
+        default: none
