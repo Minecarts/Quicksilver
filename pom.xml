@@ -4,7 +4,7 @@
     <version>1.0.4</version>
     <artifactId>Quicksilver</artifactId>
     <name>Quicksilver</name>
-    <url>http://www.minecarts.com</url>
+    <url>http://www.minecarts.com/</url>
     <repositories>
         <repository>
             <id>nexus</id>

@@ -41,7 +41,7 @@ permissions:
         default: op
     quicksilver.aggro.always:
         description: "Always vanish"
-        default: none
+        default: false
         
     #deaggro
     quicksilver.aggro.*:
@@ -61,4 +61,4 @@ permissions:
         default: op
     quicksilver.aggro.always:
         description: "Always deaggro"
-        default: none
+        default: false
