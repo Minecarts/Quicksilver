@@ -7,11 +7,9 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bukkit.plugin.java.JavaPlugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,12 +19,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.minecarts.dbpermissions.PermissionsCalculated;
 
 public class Quicksilver extends JavaPlugin implements Listener {
-    protected final Set<OfflinePlayer> deaggroedPlayers = new HashSet<OfflinePlayer>();
-    protected final Set<OfflinePlayer> vanishedPlayers = new HashSet<OfflinePlayer>();
+    protected final Set<String> deaggroedPlayers = new HashSet<String>();
+    protected final Set<String> vanishedPlayers = new HashSet<String>();
     
     @Override
     public void onEnable() {       
@@ -46,12 +45,11 @@ public class Quicksilver extends JavaPlugin implements Listener {
                         }
                         playerToVanish = (Player) sender;
                         break;
-                        
                     case 1:
                         if(args[0].equalsIgnoreCase("list")) {
                             sender.sendMessage("---Vanished players---");
-                            for(OfflinePlayer player : vanishedPlayers) {
-                                sender.sendMessage(player.getName());
+                            for(String name : vanishedPlayers) {
+                                sender.sendMessage(name);
                             }
                             return true;
                         }
@@ -67,24 +65,24 @@ public class Quicksilver extends JavaPlugin implements Listener {
                 if(playerToVanish == null) return false;
                 
                 
-                if(!vanishedPlayers.contains(playerToVanish)) {
+                if(!vanishedPlayers.contains(playerToVanish.getName())) {
                     //Hide this player from all players
-                    vanishedPlayers.add(playerToVanish);
-                    deaggroedPlayers.add(playerToVanish);
+                    vanishedPlayers.add(playerToVanish.getName());
+                    deaggroedPlayers.add(playerToVanish.getName());
                     updatePlayer(playerToVanish);
                     
                     sender.sendMessage(playerToVanish.getName() + " is now vanished.");
-                    if(!playerToVanish.equals(sender)) {
+                    if(!playerToVanish.getName().equals(sender.getName())) {
                         playerToVanish.sendMessage(sender.getName() + " has made you invisible.");
                     }
                     log("{0} VANISHED {1}", sender.getName(), playerToVanish.getName());
                 } else {
-                    vanishedPlayers.remove(playerToVanish);
-                    deaggroedPlayers.remove(playerToVanish);
+                    vanishedPlayers.remove(playerToVanish.getName());
+                    deaggroedPlayers.remove(playerToVanish.getName());
                     updatePlayer(playerToVanish);
                     
                     sender.sendMessage(playerToVanish.getName() + " is now visible.");
-                    if(!playerToVanish.equals(sender)) {
+                    if(!playerToVanish.getName().equals(sender.getName())) {
                         playerToVanish.sendMessage(sender.getName() + " has made you visible.");
                     }
                     log("{0} UNVANISHED {1}", sender.getName(), playerToVanish.getName());
@@ -105,14 +103,13 @@ public class Quicksilver extends JavaPlugin implements Listener {
                             sender.sendMessage("You cannot deaggro yourself when you're not a player.");
                             return true;
                         }
-                        playerToDeaggro = (Player) sender;
+                        playerToDeaggro = (Player)sender;
                         break;
-                        
                     case 1:
                         if(args[0].equalsIgnoreCase("list")) {
                             sender.sendMessage("---Deaggroed players---");
-                            for(OfflinePlayer player : deaggroedPlayers) {
-                                sender.sendMessage(player.getName());
+                            for(String name : deaggroedPlayers) {
+                                sender.sendMessage(name);
                             }
                             return true;
                         }
@@ -126,20 +123,20 @@ public class Quicksilver extends JavaPlugin implements Listener {
                         playerToDeaggro = players.get(0);
                 }
 
-                if(deaggroedPlayers.contains(playerToDeaggro)) {
-                    deaggroedPlayers.remove(playerToDeaggro);
+                if(deaggroedPlayers.contains(playerToDeaggro.getName())) {
+                    deaggroedPlayers.remove(playerToDeaggro.getName());
 
                     sender.sendMessage(playerToDeaggro.getName() + " will now aggro mobs.");
-                    if(!playerToDeaggro.equals(sender)) {
+                    if(!playerToDeaggro.getName().equals(sender.getName())) {
                         playerToDeaggro.sendMessage(sender.getName() + " has made it so you will aggro mobs.");
                     }
                     log("{0} AGGROED {1}", sender.getName(), playerToDeaggro.getName());
 
                 } else {
-                    deaggroedPlayers.add(playerToDeaggro);
+                    deaggroedPlayers.add(playerToDeaggro.getName());
 
                     sender.sendMessage(playerToDeaggro.getName() + " will no longer aggro mobs.");
-                    if(!playerToDeaggro.equals(sender)) {
+                    if(!playerToDeaggro.getName().equals(sender.getName())) {
                         playerToDeaggro.sendMessage(sender.getName() + " has made it so you will no long aggro mobs.");
                     }
                     log("{0} DEAGGROED {1}", sender.getName(), playerToDeaggro.getName());
@@ -166,13 +163,13 @@ public class Quicksilver extends JavaPlugin implements Listener {
 
     @EventHandler
     public void playerAggro(EntityTargetEvent event) {
-        if(event.getTarget() instanceof Player && deaggroedPlayers.contains((Player) event.getTarget())) {
+        if(event.getTarget() instanceof Player && deaggroedPlayers.contains(((Player) event.getTarget()).getName())) {
             event.setCancelled(true);
         }
     }
     @EventHandler
     public void playerPickupItem(PlayerPickupItemEvent event) {
-        if(vanishedPlayers.contains(event.getPlayer())) {
+        if(vanishedPlayers.contains(event.getPlayer().getName())) {
             event.setCancelled(true);
         }
     }
@@ -184,11 +181,11 @@ public class Quicksilver extends JavaPlugin implements Listener {
             if(player == null) return; // shouldn't happen, but something has been throwing NPEs
             
             if(player.hasPermission("quicksilver.vanish.always")) {
-                vanishedPlayers.add(player);
-                deaggroedPlayers.add(player);
+                vanishedPlayers.add(player.getName());
+                deaggroedPlayers.add(player.getName());
             }
             else if(player.hasPermission("quicksilver.deaggro.always")) {
-                deaggroedPlayers.add(player);
+                deaggroedPlayers.add(player.getName());
             }
             updatePlayer(player);
         }
@@ -200,14 +197,14 @@ public class Quicksilver extends JavaPlugin implements Listener {
     }
     
     
-    protected Set<Player> getOnlinePlayers(Set<OfflinePlayer> players) {
-        Set<Player> online = new HashSet<Player>();
+    protected Set<Player> getOnlinePlayers(Set<String> names) {
+        Set<Player> players = new HashSet<Player>();
         for(Player player : Bukkit.getOnlinePlayers()) {
-            if(players.contains(player)) {
-                online.add(player);
+            if(names.contains(player.getName())) {
+                players.add(player);
             }
         }
-        return online;
+        return players;
     }
     
     
@@ -215,7 +212,7 @@ public class Quicksilver extends JavaPlugin implements Listener {
         if(target == null) return; // shouldn't happen, but something has been throwing NPEs
         
         // player is vanished
-        if(vanishedPlayers.contains(target)) {
+        if(vanishedPlayers.contains(target.getName())) {
             // hide player from online players
             for(Player p : Bukkit.getOnlinePlayers()) {
                 if(target.equals(p)) continue; // skip self
